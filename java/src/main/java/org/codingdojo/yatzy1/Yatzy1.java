@@ -1,16 +1,8 @@
 package org.codingdojo.yatzy1;
 
-public class Yatzy1 {
+import java.util.Arrays;
 
-    public static int chance(int d1, int d2, int d3, int d4, int d5) {
-        int sum = 0;
-        sum += d1;
-        sum += d2;
-        sum += d3;
-        sum += d4;
-        sum += d5;
-        return sum;
-    }
+public class Yatzy1 {
 
     public static int yatzy(int... dice) {
         int[] counts = new int[6];
@@ -23,37 +15,6 @@ public class Yatzy1 {
             }
         }
         return 0;
-    }
-
-    public static int ones(int d1, int d2, int d3, int d4, int d5) {
-        int sum = 0;
-        if (d1 == 1) sum++;
-        if (d2 == 1) sum++;
-        if (d3 == 1) sum++;
-        if (d4 == 1) sum++;
-        if (d5 == 1) sum++;
-
-        return sum;
-    }
-
-    public static int twos(int d1, int d2, int d3, int d4, int d5) {
-        int sum = 0;
-        if (d1 == 2) sum += 2;
-        if (d2 == 2) sum += 2;
-        if (d3 == 2) sum += 2;
-        if (d4 == 2) sum += 2;
-        if (d5 == 2) sum += 2;
-        return sum;
-    }
-
-    public static int threes(int d1, int d2, int d3, int d4, int d5) {
-        int sum = 0;
-        if (d1 == 3) sum += 3;
-        if (d2 == 3) sum += 3;
-        if (d3 == 3) sum += 3;
-        if (d4 == 3) sum += 3;
-        if (d5 == 3) sum += 3;
-        return sum;
     }
 
     protected int[] dice;
@@ -71,34 +32,32 @@ public class Yatzy1 {
         dice[4] = d5;
     }
 
+    public int chance() {
+        return Arrays.stream(dice).sum();
+    }
+
+    public int ones() {
+        return scoreSumOfDiceWithTheSameNumber(1);
+    }
+
+    public int twos() {
+        return scoreSumOfDiceWithTheSameNumber(2);
+    }
+
+    public int threes() {
+        return scoreSumOfDiceWithTheSameNumber(3);
+    }
+
     public int fours() {
-        int sum = 0;
-        for (int i = 0; i < 5; i++) {
-            if (dice[i] == 4) {
-                sum += 4;
-            }
-        }
-        return sum;
+        return scoreSumOfDiceWithTheSameNumber(4);
     }
 
     public int fives() {
-        int sum = 0;
-        for (int die : dice) {
-            if (die == 5) {
-                sum = sum + 5;
-            }
-        }
-        return sum;
+        return scoreSumOfDiceWithTheSameNumber(5);
     }
 
     public int sixes() {
-        int sum = 0;
-        for (int die : dice) {
-            if (die == 6) {
-                sum = sum + 6;
-            }
-        }
-        return sum;
+        return scoreSumOfDiceWithTheSameNumber(6);
     }
 
     public int pair(int d1, int d2, int d3, int d4, int d5) {
@@ -240,6 +199,10 @@ public class Yatzy1 {
         }
 
         return 0;
+    }
+
+    private int scoreSumOfDiceWithTheSameNumber(int x) {
+        return Arrays.stream(dice).filter(die -> die == x).sum();
     }
 }
 
