@@ -1,13 +1,14 @@
 Yatzy Refactoring Kata Java Version
 ===================================
 
-For full instructions see [top level instructions](../README.md)
+Dans ce Kata, j'ai procédé au refactoring de la classe Yatzy1.
 
-There are three variants of this kata each with different refactoring challenges.
+Reste à faire : 
 
-## Code Reading Practice
-Here is a list of github urls of all the YatzyCalculator Java classes:
-
-* [Yatzy1](https://github.com/emilybache/Yatzy-Refactoring-Kata/blob/main/java/src/main/java/org/codingdojo/yatzy1/Yatzy1.java)
-* [Yatzy2](https://github.com/emilybache/Yatzy-Refactoring-Kata/blob/main/java/src/main/java/org/codingdojo/yatzy2/Yatzy2.java)
-* [Yatzy3](https://github.com/emilybache/Yatzy-Refactoring-Kata/blob/main/java/src/main/java/org/codingdojo/yatzy3/Yatzy3.java)
+- Vérifier la valeur d'un dé
+- Introduire une classe Roll pour encapsuler les dés et les traitements afférents
+- Créer une méthode qui prendra un Roll (liste de valeurs de dés) et une catégorie (chance, yatzy, ...)
+- Revoir les tests en factorisant les tests qui se répètent (@ParametrizedTest et @MethodSource 
+pour fournir les valeurs des tests)
+- Remplacer les valeurs magiques dans le code par des constantes biens définies
+- Renommage de la classe Yatzy (YatzyGame ?)
