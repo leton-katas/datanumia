@@ -1,16 +1,20 @@
 package org.codingdojo.yatzy1;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Yatzy1 {
 
-    private final int[] counts;
+    public static final List<Integer> TIMES_OF_FULL_HOUSE_KIND = Arrays.asList(2, 3);
+    public static final List<Integer> DICE_NUMBERS = Arrays.asList(6, 5, 4, 3, 2, 1);
     private final List<Integer> dice;
+    private final Map<Integer, Integer> occurrenceOfDiceNumberInRoll;
 
     public Yatzy1(int d1, int d2, int d3, int d4, int d5) {
         dice = Arrays.asList(d1, d2, d3, d4, d5);
-        counts = countsOccurrenceOfDiceNumberInTheRoll();
+        occurrenceOfDiceNumberInRoll = countsOccurrenceOfDiceNumberInTheRoll();
     }
 
     public int largeStraight() {
@@ -28,31 +32,12 @@ public class Yatzy1 {
     }
 
     public int fullHouse() {
-        boolean foundTwoOfAKind = false;
-        int i;
-        int twoOfAKind = 0;
-        boolean foundThreeOfAKind = false;
-        int threeOfAKind = 0;
-
-        for (i = 0; i < counts.length; i += 1) {
-            if (counts[i] == 2) {
-                foundTwoOfAKind = true;
-                twoOfAKind = i + 1;
+        return TIMES_OF_FULL_HOUSE_KIND.stream().reduce(0, (score, times) -> {
+            if (!occurrenceOfDiceNumberInRoll.containsValue(times)) {
+                return 0;
             }
-        }
-
-        for (i = 0; i < counts.length; i += 1) {
-            if (counts[i] == 3) {
-                foundThreeOfAKind = true;
-                threeOfAKind = i + 1;
-            }
-        }
-
-        if (foundTwoOfAKind && foundThreeOfAKind) {
-            return twoOfAKind * 2 + threeOfAKind * 3;
-        }
-
-        return 0;
+            return score + foundDiceNumberMatchingXTimesOfAKind(times) * times;
+        });
     }
 
     public int threeOfAKind() {
@@ -68,11 +53,12 @@ public class Yatzy1 {
     public int twoPairs() {
         int numberOfPairs = 0;
         int sum = 0;
-        for (int i = 0; i < counts.length; i += 1)
-            if (counts[6 - i - 1] >= 2) {
+        for (var die : DICE_NUMBERS) {
+            if (occurrenceOfDiceNumberInRoll.getOrDefault(die, 0) >= 2) {
                 numberOfPairs++;
-                sum += (6 - i);
+                sum += die;
             }
+        }
         if (numberOfPairs == 2) {
             return sum * 2;
         }
@@ -88,9 +74,7 @@ public class Yatzy1 {
     }
 
     private boolean isYatzyRoll() {
-        return Arrays
-            .stream(counts)
-            .anyMatch(dieCount -> dieCount == 5);
+        return occurrenceOfDiceNumberInRoll.containsValue(5);
     }
 
     public int chance() {
@@ -133,47 +117,60 @@ public class Yatzy1 {
     }
 
     public int pair() {
-        for (int i = 0; i < counts.length; i++) {
-            if (counts[6 - i - 1] >= 2) {
-                return (6 - i) * 2;
+        for (var die : DICE_NUMBERS) {
+            if (occurrenceOfDiceNumberInRoll.getOrDefault(die, 0) >= 2) {
+                return die * 2;
             }
         }
         return 0;
     }
 
-    private int[] countsOccurrenceOfDiceNumberInTheRoll() {
-        int[] counts = new int[6];
+    private Map<Integer, Integer> countsOccurrenceOfDiceNumberInTheRoll() {
+        Map<Integer, Integer> occurrenceOfDiceNumberInRoll = new HashMap<>();
         for (var die : dice) {
-            counts[die - 1]++;
+            if (!occurrenceOfDiceNumberInRoll.containsKey(die)) {
+                occurrenceOfDiceNumberInRoll.put(die, 0);
+            }
+            occurrenceOfDiceNumberInRoll.put(die, occurrenceOfDiceNumberInRoll.get(die) + 1);
         }
-        return counts;
+        return occurrenceOfDiceNumberInRoll;
+    }
+
+    private int foundDiceNumberMatchingXTimesOfAKind(int timesOfAKind) {
+        for (var die : dice) {
+            if (occurrenceOfDiceNumberInRoll.get(die) == timesOfAKind) {
+                return die;
+            }
+        }
+        return 0;
     }
 
     private int scoresSumOfAllDiceMatchingXTimesOfAKind(int timesOfAKind) {
-        for (int i = 0; i < counts.length; i++) {
-            if (counts[i] >= timesOfAKind) {
-                return (i + 1) * timesOfAKind;
+        for (var die : dice) {
+            if (occurrenceOfDiceNumberInRoll.get(die) >= timesOfAKind) {
+                return die * timesOfAKind;
             }
         }
         return 0;
     }
 
-
     private boolean isSmallStraightRoll() {
-        return counts[0] == 1 &&
-            counts[1] == 1 &&
-            counts[2] == 1 &&
-            counts[3] == 1 &&
-            counts[4] == 1;
+        return foundAllUniqueDiceExceptExcluded(6);
+    }
+
+    private boolean isLargeStraightRoll() {
+        return foundAllUniqueDiceExceptExcluded(1);
     }
 
 
-    private boolean isLargeStraightRoll() {
-        return counts[1] == 1 &&
-            counts[2] == 1 &&
-            counts[3] == 1 &&
-            counts[4] == 1
-            && counts[5] == 1;
+    private boolean foundAllUniqueDiceExceptExcluded(int excludedKind) {
+        Integer totalOfDiceNumberThatOccursOnce = occurrenceOfDiceNumberInRoll
+            .values()
+            .stream()
+            .filter(value -> value == 1)
+            .reduce(0, Integer::sum);
+        return totalOfDiceNumberThatOccursOnce == 5 && occurrenceOfDiceNumberInRoll
+            .getOrDefault(excludedKind, 0) == 0;
     }
 }
 
