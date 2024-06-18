@@ -4,16 +4,21 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
+
 
 public class Yatzy1 {
 
-    public static final List<Integer> TIMES_OF_FULL_HOUSE_KIND = Arrays.asList(2, 3);
-    public static final List<Integer> DICE_NUMBERS = Arrays.asList(6, 5, 4, 3, 2, 1);
-    private final List<Integer> dice;
-    private final Map<Integer, Integer> occurrenceOfDiceNumberInRoll;
+
+
+    private static final List<Integer> TIMES_OF_FULL_HOUSE_KIND = Arrays.asList(2, 3);
+    private static final List<Dice> DICE_NUMBERS = Arrays.asList(Dice.SIX, Dice.FIVE, Dice.FOUR, Dice.THREE, Dice.TWO, Dice.ONE);
+    private final List<Dice> dice;
+    private final Map<Dice, Integer> occurrenceOfDiceNumberInRoll;
 
     public Yatzy1(int d1, int d2, int d3, int d4, int d5) {
-        dice = Arrays.asList(d1, d2, d3, d4, d5);
+        dice = Stream.of(d1, d2, d3, d4, d5)
+            .map(Dice::findByNumber).toList();
         occurrenceOfDiceNumberInRoll = countsOccurrenceOfDiceNumberInTheRoll();
     }
 
@@ -56,7 +61,7 @@ public class Yatzy1 {
         for (var die : DICE_NUMBERS) {
             if (occurrenceOfDiceNumberInRoll.getOrDefault(die, 0) >= 2) {
                 numberOfPairs++;
-                sum += die;
+                sum += die.getNumber();
             }
         }
         if (numberOfPairs == 2) {
@@ -80,7 +85,7 @@ public class Yatzy1 {
     public int chance() {
         return dice
             .stream()
-            .mapToInt(Integer::intValue)
+            .mapToInt(Dice::getNumber)
             .sum();
     }
 
@@ -111,22 +116,22 @@ public class Yatzy1 {
 
     private int scoreSumOfDiceWithTheSameNumber(int diceNumber) {
         return dice.stream()
-            .filter(die -> die == diceNumber)
-            .mapToInt(Integer::intValue)
+            .filter(die -> die.getNumber().equals(diceNumber))
+            .mapToInt(Dice::getNumber)
             .sum();
     }
 
     public int pair() {
         for (var die : DICE_NUMBERS) {
             if (occurrenceOfDiceNumberInRoll.getOrDefault(die, 0) >= 2) {
-                return die * 2;
+                return die.getNumber() * 2;
             }
         }
         return 0;
     }
 
-    private Map<Integer, Integer> countsOccurrenceOfDiceNumberInTheRoll() {
-        Map<Integer, Integer> occurrenceOfDiceNumberInRoll = new HashMap<>();
+    private Map<Dice, Integer> countsOccurrenceOfDiceNumberInTheRoll() {
+        Map<Dice, Integer> occurrenceOfDiceNumberInRoll = new HashMap<>();
         for (var die : dice) {
             if (!occurrenceOfDiceNumberInRoll.containsKey(die)) {
                 occurrenceOfDiceNumberInRoll.put(die, 0);
@@ -139,7 +144,7 @@ public class Yatzy1 {
     private int foundDiceNumberMatchingXTimesOfAKind(int timesOfAKind) {
         for (var die : dice) {
             if (occurrenceOfDiceNumberInRoll.get(die) == timesOfAKind) {
-                return die;
+                return die.getNumber();
             }
         }
         return 0;
@@ -148,7 +153,7 @@ public class Yatzy1 {
     private int scoresSumOfAllDiceMatchingXTimesOfAKind(int timesOfAKind) {
         for (var die : dice) {
             if (occurrenceOfDiceNumberInRoll.get(die) >= timesOfAKind) {
-                return die * timesOfAKind;
+                return die.getNumber() * timesOfAKind;
             }
         }
         return 0;
