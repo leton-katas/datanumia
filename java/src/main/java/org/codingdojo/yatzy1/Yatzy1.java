@@ -14,72 +14,54 @@ public class Yatzy1 {
     }
 
     public int largeStraight() {
-
-        if (counts[1] == 1 &&
-            counts[2] == 1 &&
-            counts[3] == 1 &&
-            counts[4] == 1
-            && counts[5] == 1) {
+        if (isLargeStraightRoll()) {
             return 20;
         }
         return 0;
     }
 
-    public int fullHouse() {
-        boolean _2 = false;
-        int i;
-        int _2_at = 0;
-        boolean _3 = false;
-        int _3_at = 0;
-
-        for (i = 0; i != 6; i += 1) {
-            if (counts[i] == 2) {
-                _2 = true;
-                _2_at = i + 1;
-            }
-        }
-
-        for (i = 0; i != 6; i += 1) {
-            if (counts[i] == 3) {
-                _3 = true;
-                _3_at = i + 1;
-            }
-        }
-
-        if (_2 && _3) {
-            return _2_at * 2 + _3_at * 3;
-        }
-
-        return 0;
-    }
-
     public int smallStraight() {
-        if (counts[0] == 1 &&
-            counts[1] == 1 &&
-            counts[2] == 1 &&
-            counts[3] == 1 &&
-            counts[4] == 1) {
+        if (isSmallStraightRoll()) {
             return 15;
         }
         return 0;
     }
 
-    public int threeOfAKind() {
-        for (int i = 0; i < 6; i++) {
-            if (counts[i] >= 3) {
-                return (i + 1) * 3;
+    public int fullHouse() {
+        boolean foundTwoOfAKind = false;
+        int i;
+        int twoOfAKind = 0;
+        boolean foundThreeOfAKind = false;
+        int threeOfAKind = 0;
+
+        for (i = 0; i < counts.length; i += 1) {
+            if (counts[i] == 2) {
+                foundTwoOfAKind = true;
+                twoOfAKind = i + 1;
             }
         }
+
+        for (i = 0; i < counts.length; i += 1) {
+            if (counts[i] == 3) {
+                foundThreeOfAKind = true;
+                threeOfAKind = i + 1;
+            }
+        }
+
+        if (foundTwoOfAKind && foundThreeOfAKind) {
+            return twoOfAKind * 2 + threeOfAKind * 3;
+        }
+
         return 0;
     }
 
+    public int threeOfAKind() {
+        return scoresSumOfAllDiceMatchingXTimesOfAKind(3);
+    }
+
+
     public int fourOfAKind() {
-        for (int i = 0; i < 6; i++) {
-            if (counts[i] >= 4) {
-                return (i + 1) * 4;
-            }
-        }
-        return 0;
+        return scoresSumOfAllDiceMatchingXTimesOfAKind(4);
     }
 
 
@@ -99,16 +81,23 @@ public class Yatzy1 {
     }
 
     public int yatzy() {
-        for (int i = 0; i < 6; i++) {
-            if (counts[i] == 5) {
-                return 50;
-            }
+        if (isYatzyRoll()) {
+            return 50;
         }
         return 0;
     }
 
+    private boolean isYatzyRoll() {
+        return Arrays
+            .stream(counts)
+            .anyMatch(dieCount -> dieCount == 5);
+    }
+
     public int chance() {
-        return dice.stream().mapToInt(Integer::intValue).sum();
+        return dice
+            .stream()
+            .mapToInt(Integer::intValue)
+            .sum();
     }
 
     public int ones() {
@@ -137,7 +126,10 @@ public class Yatzy1 {
 
 
     private int scoreSumOfDiceWithTheSameNumber(int diceNumber) {
-        return dice.stream().filter(die -> die == diceNumber).mapToInt(Integer::intValue).sum();
+        return dice.stream()
+            .filter(die -> die == diceNumber)
+            .mapToInt(Integer::intValue)
+            .sum();
     }
 
     public int pair() {
@@ -151,10 +143,37 @@ public class Yatzy1 {
 
     private int[] countsOccurrenceOfDiceNumberInTheRoll() {
         int[] counts = new int[6];
-        for(var die : dice) {
+        for (var die : dice) {
             counts[die - 1]++;
         }
         return counts;
+    }
+
+    private int scoresSumOfAllDiceMatchingXTimesOfAKind(int timesOfAKind) {
+        for (int i = 0; i < counts.length; i++) {
+            if (counts[i] >= timesOfAKind) {
+                return (i + 1) * timesOfAKind;
+            }
+        }
+        return 0;
+    }
+
+
+    private boolean isSmallStraightRoll() {
+        return counts[0] == 1 &&
+            counts[1] == 1 &&
+            counts[2] == 1 &&
+            counts[3] == 1 &&
+            counts[4] == 1;
+    }
+
+
+    private boolean isLargeStraightRoll() {
+        return counts[1] == 1 &&
+            counts[2] == 1 &&
+            counts[3] == 1 &&
+            counts[4] == 1
+            && counts[5] == 1;
     }
 }
 
